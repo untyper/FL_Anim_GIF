@@ -650,7 +650,6 @@ Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_, int w_, int h_,
   _speed(1),
   _autoresize(false),
   _fi(new FrameInfo(this)) {
-  printf("Fl_Anim_GIF(int x_, int y_, int w_, int h_, char *buf_, int len_ ...) called");
   _init(buf_, len_, start_, optimize_mem_, debug_);
 }
 
@@ -668,7 +667,6 @@ Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_,
   _speed(1),
   _autoresize(false),
   _fi(new FrameInfo(this)) {
-  printf("Fl_Anim_GIF(int x_, int y_, char *buf_, int len_ ...) called");
   _init(buf_, len_, start_, optimize_mem_, debug_);
 }
 
