@@ -315,7 +315,6 @@ bool Fl_Anim_GIF::FrameInfo::load(char *buf_, long len_) {
 
 
 void Fl_Anim_GIF::FrameInfo::onFrameLoaded(GIF_WHDR &whdr_) {
-  printf("onFrameLoaded valid=%d\n", valid);
   static bool warn = false;
   if (whdr_.ifrm && !valid) return; // if already invalid, just ignore rest
   int delay = whdr_.time;
