@@ -4,13 +4,13 @@ Original project: https://github.com/wcout/fltk-gif-animation
 # Changes
 Added functionality to load GIFs from memory buffers.
 
-- Removed redundant x,y constructor in favor of default arguments.
-+ Added `Fl_Anim_GIF` constructor overload for memory buffer.
+- Removed redundant x,y constructor in favor of default arguments and reversed the order of name and position parameters for better overload resolution.
++ Added `Fl_Anim_GIF` constructor overload to support loading GIFs from memory buffer.
 ```c++
-  Fl_Anim_GIF(int x_, int y_, int w_ = 0, int h_ = 0, const char *name_ = 0,
+  Fl_Anim_GIF(const char *name_, int x_, int y_, int w_ = 0, int h_ = 0,
               bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
-  Fl_Anim_GIF(int x_, int y_, int w_ = 0, int h_ = 0, const char *name_ = 0,
-              const unsigned char *buf_ = 0, int len_ = 0,
+  Fl_Anim_GIF(const char *name_, const unsigned char *buf_, int len_,
+              int x_, int y_, int w_ = 0, int h_ = 0,
               bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
 ```
 
