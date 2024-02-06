@@ -26,7 +26,9 @@ bool load(char *buf_, int len_, bool from_file_ = false);
 The changes above are also, obviously, reflected in the implementation file (.CXX)
 
 # Usage
-Place the files in your project and include `Fl_Anim_GIF.H`
+
+Either place files in source directory and include or compile to a stand alone static library and link against it (`fltk_gif.lib`).
+
 ```c++
 char my_gif[] = {/* some bytes here */};
 Fl_Anim_GIF animgif(0, 0, 500, 500, my_gif, sizeof(my_gif));
