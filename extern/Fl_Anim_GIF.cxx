@@ -570,6 +570,7 @@ bool Fl_Anim_GIF::loop = true;
 #include <FL/Fl.H>        // for Fl::add_timeout()
 #include <FL/fl_draw.H>
 
+
 void Fl_Anim_GIF::_init(bool start_) {
   if (canvas_w() && canvas_h()) {
     if (w() <= 0 && h() <= 0)
@@ -578,6 +579,7 @@ void Fl_Anim_GIF::_init(bool start_) {
   if (_valid && start_)
     start();
 }
+
 
 void Fl_Anim_GIF::_init(const char *name_, bool start_,
                         bool optimize_mem_, int debug_) {
@@ -589,19 +591,21 @@ void Fl_Anim_GIF::_init(const char *name_, bool start_,
   _init(start_);
 }
 
-void Fl_Anim_GIF::_init(char *buf_, int len_, bool start_,
+
+void Fl_Anim_GIF::_init(const char *name_, char *buf_, int len_, bool start_,
                         bool optimize_mem_, int debug_) {
   _fi->_debug = debug_;
   _fi->optimize_mem = optimize_mem_;
   if (len_ > 0) {
-    _valid = load(buf_, len_);
+    _valid = load(name_, buf_, len_);
   }
   _init(start_);
 }
 
 
-Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_, int w_, int h_,
-                         const char *name_ /* = 0*/,
+Fl_Anim_GIF::Fl_Anim_GIF(const char *name_,
+                         int x_, int y_,
+                         int w_, int h_ /* = 0*/,
                          bool start_ /* = true*/,
                          bool optimize_mem_/* = false*/,
                          int debug_/* = 0*/) :
@@ -618,12 +622,14 @@ Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_, int w_, int h_,
 }
 
 
-Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_,
-                         const char *name_ /* = 0*/,
+Fl_Anim_GIF::Fl_Anim_GIF(const char *name_,
+                         const unsigned char *buf_, int len_,
+                         int x_, int y_,
+                         int w_, int h_ /* = 0*/,
                          bool start_ /* = true*/,
                          bool optimize_mem_/* = false*/,
                          int debug_/* = 0*/) :
-  Inherited(x_, y_, 0, 0),
+  Inherited(x_, y_, w_, h_),
   _name(name_ ? strdup(name_) : 0),
   _valid(false),
   _uncache(false),
@@ -632,41 +638,7 @@ Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_,
   _speed(1),
   _autoresize(false),
   _fi(new FrameInfo(this)) {
-    _init(name_, start_, optimize_mem_, debug_);
-}
-
-Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_, int w_, int h_,
-                         char *buf_, int len_, /* = 0*/
-                         bool start_ /* = true*/,
-                         bool optimize_mem_/* = false*/,
-                         int debug_/* = 0*/) :
-  Inherited(x_, y_, w_, h_),
-  _name(0),
-  _valid(false),
-  _uncache(false),
-  _stopped(false),
-  _frame(-1),
-  _speed(1),
-  _autoresize(false),
-  _fi(new FrameInfo(this)) {
-  _init(buf_, len_, start_, optimize_mem_, debug_);
-}
-
-Fl_Anim_GIF::Fl_Anim_GIF(int x_, int y_,
-                         char *buf_, int len_, /* = 0*/
-                         bool start_ /* = true*/,
-                         bool optimize_mem_/* = false*/,
-                         int debug_/* = 0*/) :
-  Inherited(x_, y_, 0, 0),
-  _name(0),
-  _valid(false),
-  _uncache(false),
-  _stopped(false),
-  _frame(-1),
-  _speed(1),
-  _autoresize(false),
-  _fi(new FrameInfo(this)) {
-  _init(buf_, len_, start_, optimize_mem_, debug_);
+  _init(name_, (char*)buf_, len_, start_, optimize_mem_, debug_);
 }
 
 
@@ -736,9 +708,10 @@ Fl_Anim_GIF * Fl_Anim_GIF::copy() {
   return copy(canvas_w(), canvas_h());
 }
 
+
 /*virtual*/
 Fl_Anim_GIF * Fl_Anim_GIF::copy(int W_, int H_) {
-  Fl_Anim_GIF *copied = new Fl_Anim_GIF(x(), y());
+  Fl_Anim_GIF *copied = new Fl_Anim_GIF(NULL, x(), y());
   // copy/resize the animated gif frames (Fl_RGB_Image array)
   copied->w(W_);
   copied->h(H_);
@@ -894,12 +867,16 @@ static char *readin(const char *name_, long &sz_) {
   return buf;
 }
 
-bool Fl_Anim_GIF::load(const char *name_) {
-  DEBUG(("Fl_Anim_GIF:::load '%s'\n", name_));
-  clear_frames();
+void Fl_Anim_GIF::set_name(const char *name_) {
   copy_label(name_);
   free(_name);
   _name = name_ ? strdup(name_) : 0;
+}
+
+bool Fl_Anim_GIF::load(const char *name_) {
+  DEBUG(("Fl_Anim_GIF:::load '%s'\n", name_));
+  clear_frames();
+  set_name(name_);
 
   // read gif file into memory
   long len = 0;
@@ -909,13 +886,15 @@ bool Fl_Anim_GIF::load(const char *name_) {
     free(buf);
     return false;
   }
-  return load(buf, len, true);
+  return load(name_, buf, len, true);
 }
 
-bool Fl_Anim_GIF::load(char *buf_, int len_, bool from_file_ /* = false*/) {
+//bool load(const char *name_, const unsigned char *buf_, int len_, bool from_file_ = false);
+bool Fl_Anim_GIF::load(const char *name_, char *buf_, int len_, bool from_file_ /* = false*/) {
   DEBUG(("Fl_Anim_GIF:::load buffer size: '%d'\n", len_));
   if (!from_file_) {
     clear_frames();
+    set_name(name_);
   }
 
   // do own signature checking, to issue proper error/warning msg

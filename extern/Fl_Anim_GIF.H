@@ -41,7 +41,7 @@ class Fl_Anim_GIF : public Fl_Box {
 public:
   /**
    The constructor creates an new animated gif object from
-   the given file.
+   the given file or buffer.
    If 'start_=true' is specified as parameter (which is the
    default), it calls start() after successful load.
    If 'optimize_mem_=true' is specified as parameter (default: false)
@@ -54,17 +54,10 @@ public:
    and kept afterwards, as it may still be useful. It is off by
    default.
    */
-  Fl_Anim_GIF(int x_, int y_, int w_, int h_, const char *name_ = 0,
+  Fl_Anim_GIF(const char *name_, int x_, int y_, int w_ = 0, int h_ = 0,
               bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
-  Fl_Anim_GIF(int x_, int y_, const char *name_ = 0,
-              bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
-  /**
-   The constructor creates an new animated gif object directly from
-   the given buffer. Useful for self contained apps.
-   */
-  Fl_Anim_GIF(int x_, int y_, int w_, int h_, char *buf_ = 0, int len_ = 0,
-              bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
-  Fl_Anim_GIF(int x_, int y_, char *buf_, int len_ = 0,
+  Fl_Anim_GIF(const char *name_, const unsigned char *buf_, int len_,
+              int x_, int y_, int w_ = 0, int h_ = 0,
               bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
   /**
    The destructor stops a running animation and releases all
@@ -160,13 +153,20 @@ public:
    */
   Fl_Anim_GIF& resize(int W_, int H_);
   Fl_Anim_GIF& resize(double scale_);
+
+  /**
+   Set or update current GIF internal name.
+   This is called by load() to set or update the name when a new GIF is loaded.
+   */
+  void set_name(const char *name_);
+
   /**
    The load() method is either used from the constructor to load
    the image from the given file/buffer, or to re-load an existing
    animation from another file/buffer.
    */
   bool load(const char *name_);
-  bool load(char *buf_, int len_, bool from_file_ = false);
+  bool load(const char *name_, char *buf_, int len_, bool from_file_ = false);
   /**
    The loop flag can be used to (dis-)allow loop count.
    If set (which is the default), the animation will be
@@ -249,7 +249,7 @@ private:
   void onExtensionLoaded(GIF_WHDR &whdr_);
   void _init(bool start_);
   void _init(const char *name_, bool start_, bool optimize_mem_, int debug_);
-  void _init(char *buf_, int len, bool start_, bool optimize_mem_, int debug_);
+  void _init(const char *name_, char *buf_, int len, bool start_, bool optimize_mem_, int debug_);
 private:
   char *_name;
   bool _valid;
