@@ -2,48 +2,47 @@
 Original project: https://github.com/wcout/fltk-gif-animation
 
 # Changes
-- Added functionality to load GIFs from memory buffers.
+Added functionality to load GIFs from memory buffers.
 
-Added `Fl_Anim_GIF` constructor overloads to match the original constructors:
+- Removed redundant x,y constructor in favor of default arguments.
++ Added `Fl_Anim_GIF` constructor overload for memory buffer.
 ```c++
-  Fl_Anim_GIF(int x_, int y_, int w_, int h_, char *buf_ = 0, int len_ = 0,
+  Fl_Anim_GIF(int x_, int y_, int w_ = 0, int h_ = 0, const char *name_ = 0,
               bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
-  Fl_Anim_GIF(int x_, int y_, char *buf_, int len_ = 0,
+  Fl_Anim_GIF(int x_, int y_, int w_ = 0, int h_ = 0, const char *name_ = 0,
+              const unsigned char *buf_ = 0, int len_ = 0,
               bool start_ = true, bool optimize_mem_ = false, int debug_ = 0);
 ```
 
-Added `_init` overloads:
++ Added `_init` overloads:
 ```c++
   void _init(bool start_); // tunneling point for both original _init and new overload
-  void _init(char *buf_, int len, bool start_, bool optimize_mem_, int debug_); // new overload
+  void _init(const char *name_, char *buf_, int len, bool start_, bool optimize_mem_, int debug_); // new overload
 ```
 
-Added `load` overload:
++ Added `load` overload:
 ```c++
-bool load(char *buf_, int len_, bool from_file_ = false);
+bool load(const char *name_, char *buf_, int len_, bool from_file_ = false);
 ```
 
-The changes above are also, obviously, reflected in the implementation file (.CXX)
++ Added `set_name` helper function for `load`
+```c++
+void set_name(const char *name_);
+```
+
+The changes above are also, obviously, reflected in the implementation file (.cxx)
+
+# Installation
+Either place the files directly in your source directory or compile to a stand alone static library and link against it (`fltk_gif.lib`).
+Remember to include `Fl_Anim_GIF.H` in both cases.
 
 # Usage
 
-Either place files in source directory and include or compile to a stand alone static library and link against it (`fltk_gif.lib`).
-
 ```c++
-char my_gif[] = {/* some bytes here */};
-Fl_Anim_GIF animgif(0, 0, 500, 500, my_gif, sizeof(my_gif));
+unsigned char my_gif[] = {/* some gif bytes here */};
+Fl_Anim_GIF animgif(0, 0, 500, 500, NULL, my_gif, sizeof(my_gif));
 
 // See examples folder for more
-```
-
-# Caveats
-To load from a file, the string file name must always be pointed to by a `const char*` for correct overload resolution.
-Likewise the GIF memory buffer must NOT be defined with `const` keyword so that the buffer correctly decays to `char*` when passed to `Fl_Anim_GIF`. This will then correctly choose our new memory buffer overload as intended.
-
-i.e.
-```c++
-const char* my_gif[] = {/*...*/}; // BAD. WRONG OVERLOAD CALLED. APP MIGHT CRASH.
-char* my_gif[] = {/*...*/}; // CORRECT OVERLOAD CALLED.
 ```
 
 # Remarks
